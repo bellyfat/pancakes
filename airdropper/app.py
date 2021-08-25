@@ -122,6 +122,8 @@ class Airdropper:
                     time.sleep(1)
                     type(self).nonce += 1
                 else:
+                    print('fatal error happened. last known transaction was')
+                    print(to.privateKey.hex())
                     print(e)
                     exit()
 
