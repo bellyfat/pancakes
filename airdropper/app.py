@@ -1,15 +1,13 @@
 
 import secrets
 import math, time
+from chains import bsc_testnet as chain
 from eth_account import Account
 from web3 import Web3
 
 PRIVATE_KEY = 'd10aa6c590e6aa54a66ac3772453f2d739a20382e5d8bfcc46efa59a3a9d3945'
 
-chain = { 'chainid' : 97, 'explorer' : 'testnet.bscscan.com/tx/',
-    'http' : [ 'https://data-seed-prebsc-1-s1.binance.org:8545/', 'https://data-seed-prebsc-1-s2.binance.org:8545/', 'https://data-seed-prebsc-1-s3.binance.org:8545/' ],
-    'wss' : [ 'wss://bsc.getblock.io/testnet/?api_key=0f16f3f7-b29a-45d8-9c68-83c4b0de9e1b']}
-airdrop = {'seed_size' : 0.000001, 'drop_size': 0.1 }
+airdrop = {'seed_size' : 0.000001, 'drop_size': 0.001 }
 
 class Airdropper:
     gas: int = 200000
