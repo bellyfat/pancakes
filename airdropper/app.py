@@ -10,7 +10,7 @@ from chains import bsc_testnet as chain
 
 PRIVATE_KEY = 'd10aa6c590e6aa54a66ac3772453f2d739a20382e5d8bfcc46efa59a3a9d3945'
 
-airdrop = {'seed_size' : 0.000001, 'drop_size': 0.001 }
+airdrop = {'seed_size' : 0.0000001, 'drop_size': 0.000001 }
 
 class Airdropper:
     gas: int = None
@@ -104,7 +104,8 @@ class Airdropper:
                     {'nonce': tx['nonce'], 
                     'hash': f"{self.chain.get('explorer')}/{self.w3.toHex(hashed)}", 
                     'address': address, 
-                    'private': to.privateKey.hex()}, 
+                    'private': to.privateKey.hex(),
+                    'amount': self.airdrop.get('seed_size')}, 
                     str(tx['nonce'])
                 )
                 type(self).nonce += 1
@@ -124,6 +125,7 @@ class Airdropper:
                 else:
                     print('fatal error happened. last known transaction was')
                     print(to.privateKey.hex())
+                    print(to.address)
                     print(e)
                     exit()
 
