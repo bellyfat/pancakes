@@ -100,7 +100,13 @@ class Airdropper:
                 tx = self.build_tx(address)
                 signed = self.w3.eth.account.sign_transaction(tx, self.signer.privateKey)
                 hashed = self.w3.eth.send_raw_transaction(signed.rawTransaction)
-                dict_to_file({'nonce': tx['nonce'], 'hash': self.w3.toHex(hashed), 'to_addr': address, 'to_private': to.privateKey.hex()}, f"{tx['nonce']}")
+                dict_to_file(
+                    {'nonce': tx['nonce'], 
+                    'hash': f"{self.chain.get('explorer')}/{self.w3.toHex(hashed)}", 
+                    'address': address, 
+                    'private': to.privateKey.hex()}, 
+                    str(tx['nonce'])
+                )
                 type(self).nonce += 1
                 self.set_gas()
                 break
