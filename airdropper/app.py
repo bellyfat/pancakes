@@ -102,7 +102,7 @@ class Airdropper:
                 hashed = self.w3.eth.send_raw_transaction(signed.rawTransaction)
                 dict_to_file(
                     {'nonce': tx['nonce'], 
-                    'hash': f"{self.chain.get('explorer')}/{self.w3.toHex(hashed)}", 
+                    'hash': f"{self.chain.get('explorer')}{self.w3.toHex(hashed)}", 
                     'address': address, 
                     'private': to.privateKey.hex(),
                     'amount': self.airdrop.get('seed_size')}, 

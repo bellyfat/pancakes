@@ -27,7 +27,6 @@ if web3.isConnected() == False:
 sender_address = wallet.get('address')
 private = wallet.get('private')
 balance = web3.eth.get_balance(sender_address)
-balance -= 250000 * 21 * 5
 
 
 router_address = chain.get('router')
