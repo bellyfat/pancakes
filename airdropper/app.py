@@ -1,17 +1,20 @@
 
 import secrets
 import math, time
-from chains import bsc_testnet as chain
-from eth_account import Account
+from utils import dict_to_file
+
 from web3 import Web3
+from eth_account import Account
+
+from chains import bsc_testnet as chain
 
 PRIVATE_KEY = 'd10aa6c590e6aa54a66ac3772453f2d739a20382e5d8bfcc46efa59a3a9d3945'
 
 airdrop = {'seed_size' : 0.000001, 'drop_size': 0.001 }
 
 class Airdropper:
-    gas: int = 200000
-    gasPrice: int = 10 # in gwei
+    gas: int = None
+    gasPrice: int = None # in gwei
     amount_wallets: int = None
     nonce: int = None
     connections: list = []
@@ -25,6 +28,15 @@ class Airdropper:
         self.connect()
         if type(self).amount_wallets == None:
             self.calculate_airdrop()
+            self.set_gas()
+
+    def set_gas(self, increase = False):
+        type(self).gas = self.chain.get('gas')
+        type(self).gasPrice = self.chain.get('gasPrice')
+        if increase:
+            type(self).gas = math.floor(type(self).gas * 1.25)
+            type(self).gasPrice = math.floor(type(self).gasPrice * 1.25)
+
 
     def fetch_nonce(self):
         nonce = self.w3.eth.getTransactionCount(self.signer.address)
@@ -67,7 +79,7 @@ class Airdropper:
             self.connect()
 
     def build_tx(self, address):
-        tx = {
+        return {
             'nonce': type(self).nonce,
             'chainId': self.chain.get('chainid'),
             'to': address,
@@ -75,7 +87,6 @@ class Airdropper:
             'gas': type(self).gas,
             'gasPrice': self.w3.toWei(type(self).gasPrice, 'gwei')
         }
-        return tx
 
     def send_transaction(self, to: Account):
         address = to.address
@@ -89,16 +100,14 @@ class Airdropper:
                 tx = self.build_tx(address)
                 signed = self.w3.eth.account.sign_transaction(tx, self.signer.privateKey)
                 hashed = self.w3.eth.send_raw_transaction(signed.rawTransaction)
-                print({'nonce': tx['nonce'], 'hash': self.w3.toHex(hashed), 'to_addr': address, 'to_private': to.privateKey.hex()})
+                dict_to_file({'nonce': tx['nonce'], 'hash': self.w3.toHex(hashed), 'to_addr': address, 'to_private': to.privateKey.hex()}, f"{tx['nonce']}")
                 type(self).nonce += 1
-                type(self).gasPrice = 10
-                type(self).gas = 200000
+                self.set_gas()
                 break
             except Exception as e:
                 if 'underpriced' in str(e):
                     time.sleep(60)
-                    type(self).gas = math.floor(type(self).gas * 1.25)
-                    type(self).gasPrice = math.floor(type(self).gasPrice * 1.25)
+                    self.set_gas(increase = True)
                     print('sleeping for a  7 few seconds...-----zzz' + str(type(self).nonce))
                 elif 'already known' in str(e):
                     time.sleep(60)

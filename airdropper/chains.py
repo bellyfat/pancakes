@@ -8,7 +8,9 @@ bsc_testnet = {
     ],
     'wss' : [ 
         'wss://bsc.getblock.io/testnet/?api_key=0f16f3f7-b29a-45d8-9c68-83c4b0de9e1b'
-    ]
+    ],
+    'gas': 200000,
+    'gasPrice': 10 # in gwei
 }
 
 bsc = {
@@ -21,7 +23,9 @@ bsc = {
     ],
     'wss': [
         'wss://bsc-ws-node.nariox.org:443'
-    ]
+    ],
+    'gas': 200000,
+    'gasPrice': 10 # in gwei
 }
 
 #The rate limit of BSC endpoint on Testnet and Mainnet is 10K/5min.
