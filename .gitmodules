@@ -1,3 +1,0 @@
-[submodule "node-binary"]
-	path = node-binary
-	url = https://github.com/binance-chain/node-binary.git
