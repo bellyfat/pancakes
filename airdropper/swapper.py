@@ -37,7 +37,7 @@ for p in privates:
     nonce = web3.eth.get_transaction_count(acc.address)
  
     start = time.time()
-    pancakeswap2_txn = contract.functions.swapExactETHForTokensSupportingFeeOnTransferTokens(0, [spend, contract_id], acc.address, (int(time.time()) + 1000000)).buildTransaction({
+    pancakeswap2_txn = contract.functions.swapExactETHForTokens(0, [spend, contract_id], acc.address, (int(time.time()) + 1000000)).buildTransaction({
         'from': acc.address,
         'value': balance,
         'gas': 200000,
