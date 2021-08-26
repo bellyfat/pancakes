@@ -50,6 +50,3 @@ if __name__ == '__main__':
         b = Account.privateKeyToAccount(z.pop())
         p.transfer_value(a,b)
         a = b
-        if len(z) == 1:
-            z = copy.deepcopy(p.privates)
-            random.shuffle(z)
