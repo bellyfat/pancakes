@@ -31,11 +31,13 @@ class Airdropper:
             self.set_gas()
 
     def set_gas(self, increase = False):
-        type(self).gas = self.chain.get('gas')
-        type(self).gasPrice = self.chain.get('gasPrice')
         if increase:
             type(self).gas = math.floor(type(self).gas * 1.25)
             type(self).gasPrice = math.floor(type(self).gasPrice * 1.25)
+        else:
+            type(self).gas = self.chain.get('gas')
+            type(self).gasPrice = self.chain.get('gasPrice')
+
 
 
     def fetch_nonce(self):
