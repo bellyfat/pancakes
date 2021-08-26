@@ -62,7 +62,6 @@ class Airdropper:
                 self.w3 = w3
                 type(self).nonce = self.w3.eth.getTransactionCount(self.signer.address)
                 break
-            print('not connected with ' + uri)
 
     def build_tx(self, address):
         return {
@@ -99,11 +98,9 @@ class Airdropper:
                 if 'underpriced' in str(e):
                     time.sleep(60)
                     self.set_gas(increase = True)
-                    print('sleeping for a  7 few seconds...-----zzz' + str(type(self).nonce))
                 elif 'already known' in str(e):
                     time.sleep(60)
                 elif 'nonce too low' in str(e):
-                    print('nonce too low upping it')
                     time.sleep(1)
                     type(self).nonce += 1
                 else:
