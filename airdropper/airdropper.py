@@ -1,6 +1,7 @@
 
 import secrets
 import math, time
+import json
 from utils import dict_to_file
 
 from web3 import Web3
@@ -10,7 +11,7 @@ from chains import bsc_testnet as chain
 
 PRIVATE_KEY = 'd10aa6c590e6aa54a66ac3772453f2d739a20382e5d8bfcc46efa59a3a9d3945'
 
-airdrop = {'seed_size' : 0.01, 'drop_size': 0.1 }
+airdrop = {'seed_size' : 0.1, 'drop_size': 0.1 }
 
 class Airdropper:
     gas: int = None
@@ -24,19 +25,22 @@ class Airdropper:
         self.chain = chain
         self.signer = signer
         self.airdrop = airdrop
+        self.gas = 200000
         self.w3 = None
         self.connect()
         if type(self).amount_wallets == None:
             self.calculate_airdrop()
             self.set_gas()
 
-    def set_gas(self, increase = False):
-        if increase:
-            type(self).gas = math.floor(type(self).gas * 1.25)
+    def set_gas(self, increase_gas = False, increase_price = False):
+        if increase_price:
             type(self).gasPrice = math.floor(type(self).gasPrice * 1.25)
         else:
-            type(self).gas = self.chain.get('gas')
             type(self).gasPrice = self.chain.get('gasPrice')
+        if increase_gas:
+            type(self).gas = math.floor(self.gas * 1.25)
+        else:
+            type(self).gas = self.gas
 
     def fetch_nonce(self):
         nonce = self.w3.eth.getTransactionCount(self.signer.address)
@@ -74,7 +78,7 @@ class Airdropper:
         address = to.address
         while True:
             mempool = self.w3.geth.txpool.content()
-            if self.signer.address in mempool['queued']:
+            if self.signer.address in mempool['queued'] or self.signer.address in mempool['pending']:
                 time.sleep(30)
                 continue
             try:
@@ -88,16 +92,17 @@ class Airdropper:
                     str(tx['nonce'])
                 )
                 type(self).nonce += 1
-                self.set_gas()
                 break
             except Exception as e:
-                if 'underpriced' in str(e):
-                    time.sleep(60)
-                    self.set_gas(increase = True)
-                elif 'already known' in str(e):
-                    time.sleep(60)
-                elif 'nonce too low' in str(e):
+                err = e.args[0]
+                if err['message'] == 'transaction underpriced':
+                    print(f'tx underpriced increasing gas from {type(self).gasPrice} with 25%')
+                    self.set_gas(increase_price = True)
                     time.sleep(1)
+                elif 'already known' in err['message']:
+                    print(err)
+                    time.sleep(3)
+                elif 'nonce too low' in err['message']:
                     type(self).nonce += 1
                 else:
                     print('fatal error happened. last known transaction was')

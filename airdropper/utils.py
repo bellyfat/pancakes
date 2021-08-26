@@ -1,6 +1,9 @@
 import json
 import uuid
 import os
+import secrets
+from eth_account import Account
+
 # comment
 def dict_to_file(input: dict, fname: str) -> bool:
     fname += f"_{str(uuid.uuid1())[:3]}"
@@ -17,4 +20,8 @@ def json_privates_loader():
             result.append(js['private'])
     if not result:
         raise Exception('cant find private keys exitting')
-    return result
+    return iter(result)
+
+
+def create_wallet() -> Account:
+    return Account.create(secrets.token_hex(32))
