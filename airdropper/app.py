@@ -10,11 +10,11 @@ from chains import bsc_testnet as chain
 
 PRIVATE_KEY = 'd10aa6c590e6aa54a66ac3772453f2d739a20382e5d8bfcc46efa59a3a9d3945'
 
-airdrop = {'seed_size' : 0.0000001, 'drop_size': 0.000001 }
+airdrop = {'seed_size' : 0.001, 'drop_size': 0.01 }
 
 class Airdropper:
     gas: int = None
-    gasPrice: int = None # in gwei
+    gasPrice: int = None
     amount_wallets: int = None
     nonce: int = None
     connections: list = []
@@ -38,8 +38,6 @@ class Airdropper:
             type(self).gas = self.chain.get('gas')
             type(self).gasPrice = self.chain.get('gasPrice')
 
-
-
     def fetch_nonce(self):
         nonce = self.w3.eth.getTransactionCount(self.signer.address)
         type(self).nonce = nonce
@@ -53,7 +51,6 @@ class Airdropper:
             type(self).amount_wallets = amount
 
     def connect(self, method: str = 'http'):
-
         for uri in filter(lambda x: x not in type(self).connections, self.chain.get(method)):
             if method == 'http':
                 w3 = Web3(Web3.HTTPProvider(uri))
@@ -66,21 +63,18 @@ class Airdropper:
                 break
 
     def build_tx(self, address):
-        return {
-            'nonce': type(self).nonce,
-            'chainId': self.chain.get('chainid'),
-            'to': address,
-            'value': self.w3.toWei(self.airdrop.get('seed_size'), 'Ether'),
-            'gas': type(self).gas,
-            'gasPrice': self.w3.toWei(type(self).gasPrice, 'gwei')
-        }
+        return { 'nonce': type(self).nonce,
+                'chainId': self.chain.get('chainid'),
+                'to': address,
+                'value': self.w3.toWei(self.airdrop.get('seed_size'), 'Ether'),
+                'gas': type(self).gas,
+                'gasPrice': self.w3.toWei(type(self).gasPrice, 'gwei') }
 
     def send_transaction(self, to: Account):
         address = to.address
         while True:
             mempool = self.w3.geth.txpool.content()
             if self.signer.address in mempool['queued']:
-                print('signer in queue sleeping 15 seconds')
                 time.sleep(30)
                 continue
             try:
