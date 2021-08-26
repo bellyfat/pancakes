@@ -10,7 +10,7 @@ from chains import bsc_testnet as chain
 
 PRIVATE_KEY = 'd10aa6c590e6aa54a66ac3772453f2d739a20382e5d8bfcc46efa59a3a9d3945'
 
-airdrop = {'seed_size' : 0.001, 'drop_size': 0.01 }
+airdrop = {'seed_size' : 0.01, 'drop_size': 0.1 }
 
 class Airdropper:
     gas: int = None
