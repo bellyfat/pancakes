@@ -32,7 +32,7 @@ contract = web3.eth.contract(address=router_address, abi=PancakeABI)
 for p in privates:
     acc = Account.privateKeyToAccount(p)
     balance = web3.eth.get_balance(acc.address)
-    balance -= gasPrice * 250000
+    balance -= gasPrice * 210000
     if balance < 0:
         continue
     print(balance)
@@ -42,7 +42,7 @@ for p in privates:
     pancakeswap2_txn = contract.functions.swapExactETHForTokens(0, [spend, contract_id], acc.address, (int(time.time()) + 1000000)).buildTransaction({
         'from': acc.address,
         'value': balance,
-        'gas': 250000,
+        'gas': 210000,
         'gasPrice':gasPrice,
         'nonce': nonce,
         'chainId': chain.get('chainId')
