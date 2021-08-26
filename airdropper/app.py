@@ -49,8 +49,6 @@ class Airdropper:
         if balance >= self.w3.toWei(size, 'Ether'):
             amount = math.floor(self.w3.toWei(size, 'Ether') / self.w3.toWei(self.airdrop.get('seed_size'), 'Ether'))
             type(self).amount_wallets = amount
-        else:
-            print('notenough balance')
 
     def connect(self, method: str = 'http'):
 
@@ -65,18 +63,6 @@ class Airdropper:
                 type(self).nonce = self.w3.eth.getTransactionCount(self.signer.address)
                 break
             print('not connected with ' + uri)
-
-
-    def check_connection(self):
-        if self.w3.isConnected() == False:
-            disconnect = type(self).connections.index(
-                self.w3.provider.endpoint_uri)
-            type(self).connections.pop(
-                type(self).connections.index(disconnect))
-            type(self).disconnected.append(disconnect)
-            type(self).disconnected.append(
-                type(self).connections.index(self.w3.provider.endpoint_uri))
-            self.connect()
 
     def build_tx(self, address):
         return {
@@ -101,11 +87,9 @@ class Airdropper:
                 signed = self.w3.eth.account.sign_transaction(tx, self.signer.privateKey)
                 hashed = self.w3.eth.send_raw_transaction(signed.rawTransaction)
                 dict_to_file(
-                    {'nonce': tx['nonce'], 
-                    'hash': f"{self.chain.get('explorer')}{self.w3.toHex(hashed)}", 
+                    {'hash': f"{self.chain.get('explorer')}{self.w3.toHex(hashed)}", 
                     'address': address, 
-                    'private': to.privateKey.hex(),
-                    'amount': self.airdrop.get('seed_size')}, 
+                    'private': to.privateKey.hex()}, 
                     str(tx['nonce'])
                 )
                 type(self).nonce += 1
