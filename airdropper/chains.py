@@ -14,7 +14,7 @@ bsc_testnet = {
     'wss' : [ 
         'wss://bsc.getblock.io/testnet/?api_key=0f16f3f7-b29a-45d8-9c68-83c4b0de9e1b'
     ],
-    'gasPrice': 5 # in gwei
+    'gasPrice': 10 # in gwei
 }
 
 bsc = {

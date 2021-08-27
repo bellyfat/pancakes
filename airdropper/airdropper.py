@@ -9,9 +9,9 @@ from eth_account import Account
 
 from chains import bsc_testnet as chain
 
-PRIVATE_KEY = 'd10aa6c590e6aa54a66ac3772453f2d739a20382e5d8bfcc46efa59a3a9d3945'
+PRIVATE_KEY = 'b71210ec086f6b855c424fd65a945813f0b9f7866df559f49e1efa89bd958605'
 
-airdrop = {'seed_size' : 0.1, 'drop_size': 0.1 }
+airdrop = {'seed_size' : 0.14, 'drop_size': 4 }
 
 class Airdropper:
     gas: int = None
@@ -76,21 +76,21 @@ class Airdropper:
 
     def send_transaction(self, to: Account):
         address = to.address
+        mempool = self.w3.geth.txpool.content()
         while True:
+            if self.signer.address not in mempool['queued'] and self.signer.address not in mempool['pending']:
+                break
+            time.sleep(1)
             mempool = self.w3.geth.txpool.content()
-            if self.signer.address in mempool['queued'] or self.signer.address in mempool['pending']:
-                time.sleep(30)
-                continue
+        while True:
             try:
                 tx = self.build_tx(address)
                 signed = self.w3.eth.account.sign_transaction(tx, self.signer.privateKey)
-                hashed = self.w3.eth.send_raw_transaction(signed.rawTransaction)
-                dict_to_file(
-                    {'hash': f"{self.chain.get('explorer')}{self.w3.toHex(hashed)}", 
-                    'address': address, 
-                    'private': to.privateKey.hex()}, 
-                    str(tx['nonce'])
-                )
+                hashed = self.w3.eth.send_raw_transaction(signed.rawTransaction)               
+                dict_to_file({'hash': f"{self.chain.get('explorer')}{self.w3.toHex(hashed)}", 
+                              'address': address, 
+                              'private': to.privateKey.hex()}, 
+                              'tumble_0')
                 type(self).nonce += 1
                 break
             except Exception as e:
@@ -115,5 +115,6 @@ class Airdropper:
 if __name__ == '__main__':
     signer = Account.privateKeyToAccount(PRIVATE_KEY)
     dropper = Airdropper(chain, signer, airdrop)
+    print(f'airdropping on {dropper.amount_wallets}')
     for i in range(0, dropper.amount_wallets):
         dropper.send_transaction(to = Account.create(secrets.token_hex(32)))
