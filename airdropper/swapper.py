@@ -1,7 +1,7 @@
 import time
 from web3 import Web3
 from eth_account import Account
-from utils import json_private_loader, dict_to_file
+from utils import json_swap_loader, dict_to_file
 from chains import bsc_testnet as chain
 
 PancakeABI = open('pancakeABI','r').read().replace('\n','')
@@ -24,9 +24,9 @@ swapgas = 250000
 
 
 
-privates = json_private_loader()
+privates = json_swap_loader()
 full = []
-print(f'guerying {len(privates)} wallets for balances')
+
 mempool = web3.geth.txpool.content()
 for private in privates:
     acc = Account.privateKeyToAccount(private)
