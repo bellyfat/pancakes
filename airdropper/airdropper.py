@@ -3,13 +3,13 @@ import secrets
 import math, time
 import json
 from utils import dict_to_file
-
+from dotenv import load_env
 from web3 import Web3
 from eth_account import Account
 
 from chains import bsc_testnet as chain
 
-PRIVATE_KEY = 'b71210ec086f6b855c424fd65a945813f0b9f7866df559f49e1efa89bd958605'
+PRIVATE_KEY = 'you_fucking_dick'
 
 airdrop = {'seed_size' : 0.14, 'drop_size': 4 }
 
