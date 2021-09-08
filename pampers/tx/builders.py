@@ -21,5 +21,9 @@ def transfer(nonce, id, to_address, value) -> json:
     raw = tx(nonce, id, value)
     raw['to'] = to_address
     raw['gas'] = 21000
-    raw['value'] = value - raw['gasPrice'] * 21000
+    tax = raw['gasPrice'] * raw['gas']
+    raw['value'] = value - tax
+    if raw['value'] < 0:
+        log.info(raw)
+        raise Exception('the amount you want to send is less than gas fee. Aborting')
     return raw
