@@ -1,26 +1,10 @@
 import json, os
-import logging
 
-
-logger = logging.getLogger(__name__)
-ch = logging.StreamHandler()
-if os.getenv('DEBUG', 'True') == 'True':
-    logger.setLevel(logging.DEBUG)
-    ch.setLevel(logging.DEBUG)
-else:
-    logger.setLevel(logging.INFO)
-    ch.setLevel(logging.INFO)
-
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
-
-
-
+from pampers import log
 from web3 import Web3
 
 def tx(nonce, id, value) -> json:
-    logging.debug('building tx with values nonce: %s, chain id: %s, value: %s', nonce, id, value)
+    log.debug('building tx with values nonce: %s, chain id: %s, value: %s', nonce, id, value)
     return { 'nonce': int(nonce),
              'chainId': int(id),
              'value':value,

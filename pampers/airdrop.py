@@ -1,38 +1,23 @@
+import sys
 import os
-import logging
+from pathlib import Path
 
-from web3 import Web3
-from eth_account import Account
-
+try:
+    from pampers import w3, acc, log
+except Exception as e:
+    sys.path.insert(0, str(Path(os.path.dirname(os.path.realpath(__file__))).parents[0]))
+    from pampers import w3, acc, log
 
 from tx.builders import transfer
 from tx.senders import sign_and_send, check_txpool
 from utils.accounts import account_new, account_nonce
 
-
-logger = logging.getLogger(__name__)
-ch = logging.StreamHandler()
-if os.getenv('DEBUG', 'True') == 'True':
-    logger.setLevel(logging.DEBUG)
-    ch.setLevel(logging.DEBUG)
-else:
-    logger.setLevel(logging.INFO)
-    ch.setLevel(logging.INFO)
-
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
-
-
-
-acc = Account.from_key(os.getenv('PRIVATE_KEY', 'takeitback'))
-w3 = Web3(Web3.HTTPProvider(os.getenv('RPC', 'https://data-seed-prebsc-1-s1.binance.org:8545')))
-
-
 def calculate_over_amount_wallets(amount: int = 30):
     '''spreads the available balance over a fixed mount of wallets'''
     balance = w3.eth.get_balance(acc.address)
     per_wallet = balance // amount
+    if per_wallet == 0:
+        raise Exception('airdropping wallet has no balance')
     return balance, per_wallet
 
 
@@ -48,9 +33,11 @@ def calculate_over_size_bag(amount: float = 0.1):
 if __name__ == '__main__':
     amount_wallets = 50
     balance, per_wallet = calculate_over_amount_wallets(amount_wallets)
-    nonce = check_txpool(w3, acc) 
-    nonce = account_nonce(w3, acc) if nonce == None else nonce
+    nonce = check_txpool() 
+    nonce = account_nonce(acc) if nonce == None else nonce
     for i in range(0, amount_wallets):
+        log.info('airdrop %s', i)
+        log.info('  airdrop:  %s BNB', w3.fromWei(per_wallet, 'ether'))
         new_holder = account_new()
         txs = transfer(
             nonce=nonce,
@@ -58,7 +45,6 @@ if __name__ == '__main__':
             to_address=new_holder.address,
             value=per_wallet
         )
-        sign_and_send(w3, acc, txs)
-        logging.warning('send the transaction with nonce %s of %s to %s', nonce, w3.fromWei(per_wallet, 'ether'), new_holder.address)
+        sign_and_send(txs, check_mempool=False)
         nonce+=1
 
