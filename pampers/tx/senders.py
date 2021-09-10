@@ -4,10 +4,10 @@ import os,sys
 from pathlib import Path
 
 try:
-    from pampers import w3, log, acc
+    from pampers import w3, log, acc, CHAIN
 except Exception as e:
     sys.path.insert(0, str(Path(os.path.dirname(os.path.realpath(__file__))).parents[1]))
-    from pampers import w3, log, acc
+    from pampers import w3, log, acc, CHAIN
 
 
 def check_txpool():
@@ -28,9 +28,8 @@ def sign_and_send(tx: json, check_mempool=False):
     log.debug('transaction signed succesfully')
     try:
         hashed_tx = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        time.sleep(0.1)
         log.debug('transaction succesfully made %s', w3.toHex(hashed_tx))
-        log.info('  hash:     %s', w3.toHex(hashed_tx))
+        log.info('%s/tx/%s', CHAIN.get('EXPLORER'), w3.toHex(hashed_tx))
         return w3.toHex(hashed_tx)           
     except Exception as e:
         log.critical('something bad happened during transaction sending. Error: %s', e.args[0]['message'])

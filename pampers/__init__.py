@@ -1,7 +1,17 @@
 import logging
 import os
+import time
 from web3 import Web3
 from eth_account import Account
+from pampers.utils.configparser import parse_env
+
+CONFIG = parse_env()
+APP = CONFIG.app._asdict()
+CHAIN = {
+    'TIMESTAMP': str(int(time.time())),
+    **CONFIG.chain._asdict()
+}
+
 
 DEBUGFORMATTER = '%(filename)s:%(name)s:%(funcName)s:%(lineno)d: %(message)s'
 """Debug file formatter."""
@@ -10,9 +20,10 @@ INFOFORMATTER = '%(message)s'
 """Log file and stream output formatter."""
 
 
+
 log = logging.getLogger(__name__)
 consoleHandler = logging.StreamHandler()
-if os.getenv('DEBUG', 'True') == 'True':
+if APP.get('DEBUG') == 'True':
     consoleHandler.setLevel(logging.DEBUG)
     consoleHandler.setFormatter(logging.Formatter(DEBUGFORMATTER))
     log.setLevel(logging.DEBUG)
@@ -23,18 +34,18 @@ else:
 
 log.addHandler(consoleHandler)
 
+
 try:
-    pkey = os.getenv('PRIVATE_KEY', '0000000000000000000000000000000000000000000000000000000000000001')
-    if pkey == '0000000000000000000000000000000000000000000000000000000000000001':
-        log.warning('using testing private key %s', pkey)
-    acc = Account.from_key(pkey)
+    acc = Account.from_key(APP.get('PRIVATE_KEY'))
 except Exception:
     log.critical('cant initialize account. Is your private key correct?')
+    raise
 
-rpc = os.getenv('RPC', 'https://data-seed-prebsc-1-s1.binance.org:8545')
+rpc = CHAIN.get('RPC')
 w3 = Web3(Web3.HTTPProvider(rpc))
 if w3.isConnected():
     log.debug('connected to rpc endpoint: %s', rpc)
 else:
     log.critical('cant connect to rpc endpoint... exitting (%s)', rpc)
     raise Exception('rpc endpoint unavailable')
+

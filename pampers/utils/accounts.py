@@ -19,8 +19,7 @@ except Exception as e:
 def account_new() -> Account:
     account = Account.create(secrets.token_hex(32))
     priv, pub = account.privateKey.hex(), account.address
-    log.info('  private:  %s', priv)
-    log.info('  public:   %s', pub)
+    log.debug('generated new account (private:  %s and public: %s', priv, pub)
     return account
 
 def account_load(private_key: str) -> Account:
@@ -37,11 +36,11 @@ def account_balance_contract(contract: Contract, account: Account):
     log.debug('balance is %s for account %s', balance, account.address)
     return balance
 
-
 def account_nonce(account: Account):
     nonce = w3.eth.getTransactionCount(account.address)
     log.debug('nonce is %s for account %s', nonce, account.address)
     return nonce
+
 
 if __name__ == '__main__':
     nonce = account_nonce(acc)

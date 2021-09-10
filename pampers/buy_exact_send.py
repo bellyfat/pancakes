@@ -1,10 +1,14 @@
+import sys
 import os
+import math
+from pathlib import Path
 
-from contract.helpers import loadRouter
-from web3 import Web3
+try:
+    from pampers import w3, acc, log
+except Exception as e:
+    sys.path.insert(0, str(Path(os.path.dirname(os.path.realpath(__file__))).parents[0]))
+    from pampers import w3, acc, log
 
-rpc = os.getenv('RPC', 'https://data-seed-prebsc-1-s1.binance.org:8545')
-router = os.getenv('ROUTER', '0xD99D1c33F9fC3444f8101754aBC46c52416550D1')
-w3 = Web3(Web3.HTTPProvider(rpc))
-contract = loadRouter(w3, router)
-
+from tx.builders import transfer
+from tx.senders import sign_and_send, check_txpool
+from utils.accounts import account_new, account_nonce
