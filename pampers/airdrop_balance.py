@@ -1,45 +1,34 @@
-import sys
-import os
 import math
-import time
-import csv
-from pathlib import Path
 
-try:
-    from pampers import w3, acc, log
-except Exception as e:
-    sys.path.insert(0, str(Path(os.path.dirname(os.path.realpath(__file__))).parents[0]))
-    from pampers import w3, acc, log
-
-from tx.builders import transfer
-from tx.senders import sign_and_send, check_txpool
-from utils.accounts import account_new, account_nonce
+from pampers import w3, acc, log, CHAIN
+from pampers.tx.builders import transfer
+from pampers.tx.senders import sign_and_send
+from pampers.utils.accounts import account_new, account_nonce
 
 
-def calculate_amount_wallets(amount: float = 0.1):
+def airdrop(amount: float = 0.01):
     '''amount is measured in ether/bnb so 0.01 bnb or 0.1 bnb. returns amount of wallets to airdrop. Doesn't include gas fees'''
     balance = w3.eth.get_balance(acc.address)
     if balance == 0:
         raise Exception('airdropping wallet has no balance')
-    amount_wallets = balance / w3.toWei(amount, 'ether')
-    return amount_wallets
-
-
-if __name__ == '__main__':
-    per_wallet = 0.001
-    amount_wallets = calculate_amount_wallets(per_wallet)
-    nonce = check_txpool() 
-    nonce = account_nonce(acc) if nonce == None else nonce
-    for i in range(0, amount_wallets):
-        log.info('airdrop %s', i)
-        log.info('  airdrop:  %s BNB', per_wallet)
-        new_holder = account_new()
-        txs = transfer(
-            nonce=nonce,
-            id=os.getenv('ID', '97'),
-            to_address=new_holder.address,
-            value=w3.toWei(per_wallet)
-        )
-        sign_and_send(txs, check_mempool=False)
-        nonce+=1
-
+    n = math.floor(balance / w3.toWei(amount, 'ether'))
+    num = account_nonce(acc)
+    n += num
+    while num < n:
+        receiver = account_new()
+        rawtx = transfer(nonce=num,
+                         to_address = receiver.address, 
+                         value = w3.toWei(amount,'ether'))
+        row = { 'public_key': receiver.address,
+                'private_key': receiver.privateKey.hex(),
+                'tx_hash': str(None) }
+        try:
+            tx_hash = sign_and_send(rawtx, check_mempool=False)
+            row['tx_hash'] = f"{CHAIN.get('EXPLORER')}/tx/{tx_hash}"
+        except Exception as e:
+            log.critical('something went wrong during transacting. Last known receiver private key: %s and public key: %s', receiver.address, receiver.privateKey.hex())
+            print(e)
+            raise
+        finally:
+            yield row
+            num += 1
