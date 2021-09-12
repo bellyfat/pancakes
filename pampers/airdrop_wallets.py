@@ -26,6 +26,7 @@ def airdrop(n: int = 3):
                          value = balance_per_wallet)
         row = { 'public_key': receiver.address,
                 'private_key': receiver.privateKey.hex(),
+                'balance': rawtx['balance'],
                 'tx_hash': str(None) }
         try:
             tx_hash = sign_and_send(rawtx, check_mempool=False)

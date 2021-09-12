@@ -21,6 +21,7 @@ def airdrop(amount: float = 0.01):
                          value = w3.toWei(amount,'ether'))
         row = { 'public_key': receiver.address,
                 'private_key': receiver.privateKey.hex(),
+                'balance': rawtx['value'],
                 'tx_hash': str(None) }
         try:
             tx_hash = sign_and_send(rawtx, check_mempool=False)
